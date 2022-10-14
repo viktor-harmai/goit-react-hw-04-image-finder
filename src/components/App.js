@@ -116,7 +116,6 @@ export class App extends Component {
             />
           </>
         )}
-        {/* {error && <Notification message={console.log()} />} */}
       </Container>
     );
   }
