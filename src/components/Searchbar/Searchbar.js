@@ -13,35 +13,36 @@ import { FcSearch } from 'react-icons/fc';
 
 export default class Searchbar extends Component {
   state = {
-    searchQuery: '',
+    query: '',
   };
 
   handleSubmit = e => {
     e.preventDefault();
     // console.log(this.state);
-    if (this.state.searchQuery.trim() === '') {
+    if (this.state.query.trim() === '') {
       return toast.warn('Field cannot be empty!');
     }
 
-    this.props.onSubmit(this.state.searchQuery);
+    this.props.onSubmit(this.state.query);
+
     this.reset();
   };
 
   handlSearchChange = e => {
     const { name, value } = e.currentTarget;
     // console.log(name);
-    // console.log(value);
+    // console.log(value.trim());
 
-    this.setState({ [name]: value.toLowerCase() });
+    this.setState({ [name]: value.trim().toLowerCase() });
   };
 
   reset = () => {
-    this.setState({ searchQuery: '' });
+    this.setState({ query: '' });
   };
 
   render() {
     const { handleSubmit, handlSearchChange } = this;
-    const { searchQuery } = this.state;
+    const { query } = this.state;
     return (
       <HeaderSearchbar>
         <SearchForm onSubmit={handleSubmit}>
@@ -50,10 +51,10 @@ export default class Searchbar extends Component {
           </SearchFormBtn>
 
           <SearchFormInput
-            value={searchQuery}
+            value={query}
             onChange={handlSearchChange}
             type="text"
-            name="searchQuery"
+            name="query"
             autocomplete="off"
             autoFocus
             placeholder="Search images and photos"
