@@ -45,7 +45,7 @@ export default class Modal extends Component {
 }
 
 Modal.propTypes = {
-  alt: PropTypes.string,
-  url: PropTypes.string,
-  onClose: PropTypes.func,
+  alt: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
 };

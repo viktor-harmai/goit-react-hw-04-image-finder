@@ -24,7 +24,7 @@ export class App extends Component {
     error: null,
   };
 
-  async componentDidUpdate(_, prevState) {
+  componentDidUpdate(_, prevState) {
     const { query, page } = this.state;
 
     if (prevState.query !== query || prevState.page !== page) {
@@ -32,32 +32,46 @@ export class App extends Component {
       // console.log('После обновления', this.state.page);
       // console.log('До обновления', prevState.query);
       // console.log('После обновления', this.state.query);
-
-      try {
-        this.setState({ isLoading: true });
-        const response = await API.fetchData(query, page);
-
-        this.setState(prevState => ({
-          items: [...prevState.items, ...response],
-        }));
-
-        if (response.length === 0) {
-          return toast.warn(
-            'Search Failure. There is no images for your query. Please enter other query.'
-          );
-        }
-      } catch {
-        const message = 'Oops, something went wrong ...';
-        this.setState({ error: message });
-      } finally {
-        this.setState({ isLoading: false });
-      }
+      this.fetchData(query, page);
     }
   }
 
+  fetchData = async (query, page) => {
+    try {
+      this.setState({ isLoading: true });
+      const response = await API.fetchData(query.toLowerCase(), page);
+
+      if (page === 1) {
+        this.setState(prevState => ({
+          items: [...response],
+        }));
+      } else {
+        this.setState(prevState => ({
+          items: [...prevState.items, ...response],
+        }));
+      }
+
+      if (response.length === 0) {
+        return toast.warn(
+          'Search Failure. There is no images for your query. Please enter other query.'
+        );
+      }
+    } catch {
+      const message = 'Oops, something went wrong ...';
+      this.setState({ error: message });
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  };
+
   handleSearchbarSubmit = query => {
-    // console.log(searchQuery);
-    this.setState({ query, page: 1, items: [] });
+    // console.log(query);
+    // console.log(this.state);
+    if (this.state.query.toLowerCase() !== query.toLowerCase()) {
+      this.setState({ query, page: 1, items: [] });
+    } else {
+      this.setState({ page: 1 });
+    }
   };
 
   loadMore = () => {

@@ -25,7 +25,7 @@ export default class Searchbar extends Component {
 
     this.props.onSubmit(this.state.query);
 
-    this.reset();
+    // this.reset();
   };
 
   handlSearchChange = e => {
@@ -33,16 +33,17 @@ export default class Searchbar extends Component {
     // console.log(name);
     // console.log(value.trim());
 
-    this.setState({ [name]: value.trim().toLowerCase() });
+    this.setState({ [name]: value.trim() });
   };
 
-  reset = () => {
-    this.setState({ query: '' });
-  };
+  // reset = () => {
+  //   this.setState({ query: '' });
+  // };
 
   render() {
     const { handleSubmit, handlSearchChange } = this;
     const { query } = this.state;
+    // console.log(this.state);
     return (
       <HeaderSearchbar>
         <SearchForm onSubmit={handleSubmit}>
