@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 
 import * as API from 'services/api';
@@ -12,43 +12,33 @@ import Notification from './Notification';
 
 import { Container } from 'components/App.styled';
 
-export class App extends Component {
-  state = {
-    page: 1,
-    query: '',
-    items: [],
-    isLoading: false,
-    showModal: false,
-    largeImageURL: null,
-    tags: null,
-    error: null,
-  };
+export const App = () => {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImageURL, setLargeImageURL] = useState(null);
+  const [tags, setTags] = useState(null);
+  const [error, setError] = useState(null);
 
-  componentDidUpdate(_, prevState) {
-    const { query, page } = this.state;
-
-    if (prevState.query !== query || prevState.page !== page) {
-      // console.log('До обновления', prevState.page);
-      // console.log('После обновления', this.state.page);
-      // console.log('До обновления', prevState.query);
-      // console.log('После обновления', this.state.query);
-      this.fetchData(query, page);
+  useEffect(() => {
+    if (query === '') {
+      return;
     }
-  }
+    fetchData(query, page);
+  }, [query, page]);
 
-  fetchData = async (query, page) => {
+  const fetchData = async (query, page) => {
     try {
-      this.setState({ isLoading: true });
+      setIsLoading(true);
+
       const response = await API.fetchData(query.toLowerCase(), page);
 
       if (page === 1) {
-        this.setState(prevState => ({
-          items: [...response],
-        }));
+        setItems(prev => [...response]);
       } else {
-        this.setState(prevState => ({
-          items: [...prevState.items, ...response],
-        }));
+        setItems(prev => [...prev, ...response]);
       }
 
       if (response.length === 0) {
@@ -58,79 +48,67 @@ export class App extends Component {
       }
     } catch {
       const message = 'Oops, something went wrong ...';
-      this.setState({ error: message });
+      setError(message);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
-  handleSearchbarSubmit = query => {
+  const handleSearchbarSubmit = newQuery => {
+    // console.log(newQuery);
     // console.log(query);
-    // console.log(this.state);
-    if (this.state.query.toLowerCase() !== query.toLowerCase()) {
-      this.setState({ query, page: 1, items: [] });
+    if (query.toLowerCase() !== newQuery.toLowerCase()) {
+      setQuery(newQuery);
+      setPage(1);
+      setItems([]);
     } else {
-      this.setState({ page: 1 });
+      setPage(1);
     }
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prev => prev + 1);
   };
 
-  toggleModal = (tags, largeImageURL) => {
-    // console.log(largeImageURL);
-    // console.log(tags);
-    const { showModal } = this.state;
-
-    showModal
-      ? this.setState(({ showModal }) => ({
-          showModal: !showModal,
-          tags: null,
-          largeImageURL: null,
-        }))
-      : this.setState(({ showModal }) => ({
-          showModal: !showModal,
-          tags,
-          largeImageURL,
-        }));
+  const toggleModal = (tags, largeImageURL) => {
+    if (showModal) {
+      setShowModal(!showModal);
+      setTags(null);
+      setLargeImageURL(null);
+    } else {
+      setShowModal(!showModal);
+      setTags(tags);
+      setLargeImageURL(largeImageURL);
+    }
   };
 
-  render() {
-    const { items, isLoading, showModal, largeImageURL, tags, error } =
-      this.state;
-    const { handleSearchbarSubmit, loadMore, toggleModal } = this;
+  return (
+    <Container>
+      <Searchbar onSubmit={handleSearchbarSubmit} />
 
-    return (
-      <Container>
-        <Searchbar onSubmit={handleSearchbarSubmit} />
+      {error ? (
+        <Notification message={error} />
+      ) : (
+        <>
+          {isLoading && <Loader />}
+          {items.length > 0 && !isLoading && (
+            <>
+              <ImageGallery images={items} toggleModal={toggleModal} />
+              <Button onClick={loadMore} />
+            </>
+          )}
 
-        {error ? (
-          <Notification message={error} />
-        ) : (
-          <>
-            {isLoading && <Loader />}
-            {items.length > 0 && !isLoading && (
-              <>
-                <ImageGallery images={items} toggleModal={toggleModal} />
-                <Button onClick={loadMore} />
-              </>
-            )}
+          {showModal && (
+            <Modal url={largeImageURL} alt={tags} onClose={toggleModal} />
+          )}
 
-            {showModal && (
-              <Modal url={largeImageURL} alt={tags} onClose={toggleModal} />
-            )}
-
-            <ToastContainer
-              position="bottom-right"
-              autoClose={3000}
-              theme="dark"
-            />
-          </>
-        )}
-      </Container>
-    );
-  }
-}
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            theme="dark"
+          />
+        </>
+      )}
+    </Container>
+  );
+};

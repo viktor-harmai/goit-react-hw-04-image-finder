@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 
@@ -11,60 +11,42 @@ import {
 
 import { FcSearch } from 'react-icons/fc';
 
-export default class Searchbar extends Component {
-  state = {
-    query: '',
-  };
+const Searchbar = ({ onSubmit }) => {
+  const [query, setQuery] = useState('');
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    // console.log(this.state);
-    if (this.state.query.trim() === '') {
+    if (query.trim() === '') {
       return toast.warn('Field cannot be empty!');
     }
-
-    this.props.onSubmit(this.state.query);
-
-    // this.reset();
+    onSubmit(query);
   };
 
-  handlSearchChange = e => {
-    const { name, value } = e.currentTarget;
-    // console.log(name);
-    // console.log(value.trim());
-
-    this.setState({ [name]: value.trim() });
+  const handlSearchChange = e => {
+    const { value } = e.target;
+    setQuery(value.trim());
   };
+  return (
+    <HeaderSearchbar>
+      <SearchForm onSubmit={handleSubmit}>
+        <SearchFormBtn type="submit">
+          <FcSearch size={20} />
+        </SearchFormBtn>
 
-  // reset = () => {
-  //   this.setState({ query: '' });
-  // };
-
-  render() {
-    const { handleSubmit, handlSearchChange } = this;
-    const { query } = this.state;
-    // console.log(this.state);
-    return (
-      <HeaderSearchbar>
-        <SearchForm onSubmit={handleSubmit}>
-          <SearchFormBtn type="submit">
-            <FcSearch size={20} />
-          </SearchFormBtn>
-
-          <SearchFormInput
-            value={query}
-            onChange={handlSearchChange}
-            type="text"
-            name="query"
-            autocomplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-          />
-        </SearchForm>
-      </HeaderSearchbar>
-    );
-  }
-}
+        <SearchFormInput
+          value={query}
+          onChange={handlSearchChange}
+          type="text"
+          name="query"
+          autocomplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+        />
+      </SearchForm>
+    </HeaderSearchbar>
+  );
+};
+export default Searchbar;
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
