@@ -55,8 +55,6 @@ export const App = () => {
   };
 
   const handleSearchbarSubmit = newQuery => {
-    // console.log(newQuery);
-    // console.log(query);
     if (query.toLowerCase() !== newQuery.toLowerCase()) {
       setQuery(newQuery);
       setPage(1);
@@ -91,7 +89,7 @@ export const App = () => {
       ) : (
         <>
           {isLoading && <Loader />}
-          {items.length > 0 && !isLoading && (
+          {items.length > 0 && (
             <>
               <ImageGallery images={items} toggleModal={toggleModal} />
               <Button onClick={loadMore} />
